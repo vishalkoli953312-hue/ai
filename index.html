@@ -3,93 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevAI Studio Pro</title>
-    
+    <title>DevAI Studio Pro - TV & Developer Edition</title>
     <style>
-        /* Base Reset & Variables */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, monospace, sans-serif;
         }
 
         :root {
-            --bg-main: #0d1117;
-            --bg-card: #161b22;
-            --bg-hover: #21262d;
-            --border-color: #30363d;
-            --accent-blue: #2f81f7;
-            --accent-blue-hover: #1c68d4;
+            --bg-base: #090d13;
+            --bg-surface: #121820;
+            --bg-card: #182230;
+            --bg-hover: #223042;
+            --border: #28374a;
+            --accent: #2f81f7;
+            --accent-hover: #1b68d6;
+            --accent-green: #2ea043;
             --accent-purple: #a371f7;
-            --text-white: #f0f6fc;
-            --text-muted: #8b949e;
-            --success-color: #3fb950;
-            --danger-color: #f85149;
+            --text: #e6edf3;
+            --text-dim: #8b949e;
+            --danger: #f85149;
+            --focus-ring: 0 0 0 3px #2f81f7, 0 0 15px rgba(47, 129, 247, 0.6);
         }
 
         body {
-            background-color: var(--bg-main);
-            color: var(--text-white);
+            background-color: var(--bg-base);
+            color: var(--text);
             height: 100vh;
+            width: 100vw;
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
 
-        /* Top Navigation */
+        /* TV Remote Focus Highlight */
+        button:focus, textarea:focus, input:focus, select:focus, .history-item:focus {
+            outline: none !important;
+            box-shadow: var(--focus-ring) !important;
+            border-color: var(--accent) !important;
+        }
+
+        /* Top Header */
         .topbar {
             height: 56px;
-            background-color: var(--bg-card);
-            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 16px;
-            z-index: 10;
+            flex-shrink: 0;
+            z-index: 30;
         }
 
-        .brand {
+        .brand-box {
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-weight: bold;
+            gap: 8px;
+            font-weight: 700;
             font-size: 16px;
         }
 
-        .brand-icon {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, var(--accent-blue), #8a2be2);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
         .brand-badge {
-            font-size: 10px;
-            background: rgba(47, 129, 247, 0.15);
-            color: var(--accent-blue);
-            border: 1px solid rgba(47, 129, 247, 0.3);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: monospace;
+            background: linear-gradient(135deg, #2f81f7, #9333ea);
+            color: #fff;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            letter-spacing: 0.5px;
         }
 
-        .model-pill {
+        .engine-pill {
             display: flex;
             align-items: center;
             gap: 6px;
-            background: var(--bg-main);
-            border: 1px solid var(--border-color);
+            background: var(--bg-base);
+            border: 1px solid var(--border);
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 12px;
             font-family: monospace;
         }
 
-        .btn-group {
+        .actions {
             display: flex;
             align-items: center;
             gap: 8px;
@@ -97,238 +95,307 @@
 
         .btn {
             background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            color: var(--text-white);
-            padding: 6px 12px;
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 14px;
             border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
             cursor: pointer;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 6px;
-            font-size: 13px;
-            transition: 0.2s;
+            transition: all 0.15s ease;
+            user-select: none;
         }
 
         .btn:hover {
             background: var(--bg-hover);
-            border-color: #8b949e;
+            border-color: var(--text-dim);
         }
 
         .btn-primary {
-            background: var(--accent-blue);
-            border: none;
-            color: #ffffff;
-            font-weight: 500;
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #fff;
         }
 
         .btn-primary:hover {
-            background: var(--accent-blue-hover);
+            background: var(--accent-hover);
         }
 
-        /* Workspace Layout */
+        /* Workspace Grid */
         .workspace {
             flex: 1;
             display: flex;
-            overflow: hidden;
+            min-height: 0;
             position: relative;
+            overflow: hidden;
         }
 
-        /* Sidebar */
+        /* Left Settings/Parameters Sidebar */
         .sidebar {
             width: 280px;
-            background-color: var(--bg-card);
-            border-right: 1px solid var(--border-color);
+            background: var(--bg-surface);
+            border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
             padding: 16px;
             gap: 16px;
             overflow-y: auto;
+            flex-shrink: 0;
         }
 
-        .sidebar-title {
+        .sidebar-heading {
             font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: var(--text-muted);
+            color: var(--text-dim);
             font-weight: 700;
         }
 
-        .param-group {
+        .control-group {
             display: flex;
             flex-direction: column;
             gap: 6px;
         }
 
-        .param-label {
+        .control-label {
             font-size: 12px;
-            font-weight: 500;
             display: flex;
             justify-content: space-between;
+            font-weight: 600;
         }
 
-        .param-value {
-            color: var(--accent-blue);
+        .control-val {
+            color: var(--accent);
             font-family: monospace;
         }
 
         input[type="range"] {
             width: 100%;
-            accent-color: var(--accent-blue);
+            accent-color: var(--accent);
             cursor: pointer;
+            height: 6px;
         }
 
-        textarea.sidebar-input {
+        .sidebar-textarea {
             width: 100%;
-            background: var(--bg-main);
-            border: 1px solid var(--border-color);
-            color: var(--text-white);
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            color: var(--text);
             padding: 8px;
             border-radius: 6px;
             font-size: 12px;
             resize: none;
-            outline: none;
         }
 
-        textarea.sidebar-input:focus {
-            border-color: var(--accent-blue);
-        }
-
-        /* Chat Area */
-        .chat-area {
+        /* Main Chat Canvas */
+        .chat-canvas {
             flex: 1;
             display: flex;
             flex-direction: column;
-            background-color: var(--bg-main);
+            min-height: 0;
+            background: var(--bg-base);
+            position: relative;
             overflow: hidden;
         }
 
-        .messages-container {
+        /* Scrollable Message Box */
+        .messages-viewport {
             flex: 1;
             overflow-y: auto;
             padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 18px;
+            scroll-behavior: smooth;
         }
 
-        .msg-box {
+        /* Scroll hint overlay for TV */
+        .tv-scroll-hint {
+            position: fixed;
+            right: 20px;
+            bottom: 95px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 25;
+        }
+
+        .scroll-nav-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+
+        /* Message Bubbles */
+        .msg-row {
             display: flex;
             gap: 12px;
-            max-width: 850px;
+            max-width: 900px;
             width: 100%;
             margin: 0 auto;
         }
 
-        .msg-box.user {
+        .msg-row.user {
             justify-content: flex-end;
         }
 
         .msg-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 13px;
+            font-weight: 700;
             flex-shrink: 0;
         }
 
-        .msg-avatar.ai {
+        .msg-row.user .msg-avatar {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .msg-row.ai .msg-avatar {
             background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            color: var(--accent-blue);
+            border: 1px solid var(--border);
+            color: var(--accent);
         }
 
-        .msg-avatar.user {
-            background: var(--accent-blue);
-            color: white;
-        }
-
-        .msg-content {
-            padding: 12px 16px;
+        .msg-bubble {
+            max-width: 85%;
+            padding: 14px 18px;
             border-radius: 12px;
             font-size: 14px;
             line-height: 1.6;
-            max-width: 80%;
-            word-break: break-word;
+            word-wrap: break-word;
         }
 
-        .msg-box.user .msg-content {
-            background: var(--accent-blue);
-            color: white;
+        .msg-row.user .msg-bubble {
+            background: var(--accent);
+            color: #fff;
             border-top-right-radius: 2px;
         }
 
-        .msg-box.ai .msg-content {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            color: var(--text-white);
+        .msg-row.ai .msg-bubble {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            color: var(--text);
             border-top-left-radius: 2px;
+            width: 100%;
         }
 
-        /* Code Block Container */
-        pre {
-            background: #000000 !important;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 12px;
-            margin: 10px 0;
-            overflow-x: auto;
-            font-family: monospace;
-            font-size: 13px;
-        }
-
-        /* Input Area */
-        .input-bar {
-            padding: 14px 20px;
-            background: var(--bg-card);
-            border-top: 1px solid var(--border-color);
-        }
-
-        .input-wrapper {
-            max-width: 850px;
-            margin: 0 auto;
-            background: var(--bg-main);
-            border: 1px solid var(--border-color);
+        /* Code Block Card */
+        .code-card {
+            background: #05080c;
+            border: 1px solid var(--border);
             border-radius: 8px;
+            margin: 12px 0;
+            overflow: hidden;
+        }
+
+        .code-header {
+            background: #0f151d;
+            border-bottom: 1px solid var(--border);
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: monospace;
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        .code-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .code-action-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+
+        pre {
+            padding: 12px;
+            overflow-x: auto;
+            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+            font-size: 13px;
+            color: #79c0ff;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        /* FIXED BOTTOM INPUT BAR */
+        .bottom-anchor-bar {
+            background: var(--bg-surface);
+            border-top: 1px solid var(--border);
+            padding: 12px 16px;
+            flex-shrink: 0;
+            z-index: 20;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+        }
+
+        .input-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            border-radius: 10px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
 
-        .input-wrapper:focus-within {
-            border-color: var(--accent-blue);
-        }
-
-        .chat-input {
+        .chat-textarea {
             width: 100%;
             background: transparent;
             border: none;
-            color: white;
+            color: var(--text);
             padding: 12px;
             font-size: 14px;
-            resize: none;
             outline: none;
+            resize: none;
             min-height: 48px;
-            max-height: 140px;
+            max-height: 120px;
         }
 
-        .input-footer {
+        .input-actions-bar {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
             padding: 6px 12px;
             border-top: 1px solid rgba(255, 255, 255, 0.05);
-            font-size: 11px;
-            color: var(--text-muted);
+            background: rgba(0,0,0,0.15);
         }
 
-        /* Modals & Drawers */
+        .tv-tip {
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        /* Drawer & Modals */
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.75);
+            background: rgba(0,0,0,0.8);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -336,111 +403,91 @@
         }
 
         .modal-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
             border-radius: 12px;
             width: 90%;
-            max-width: 500px;
+            max-width: 520px;
             padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
+            max-height: 85vh;
+            overflow-y: auto;
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border);
             padding-bottom: 10px;
+            font-weight: 700;
         }
 
-        .modal-input {
+        .input-field {
             width: 100%;
-            background: var(--bg-main);
-            border: 1px solid var(--border-color);
-            color: white;
-            padding: 8px 12px;
+            background: var(--bg-base);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px;
             border-radius: 6px;
             font-size: 13px;
-            outline: none;
             margin-top: 4px;
+            outline: none;
         }
 
-        .modal-input:focus {
-            border-color: var(--accent-blue);
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        /* History Drawer */
         .drawer {
             position: fixed;
             top: 0;
             right: 0;
             bottom: 0;
-            width: 300px;
-            background: var(--bg-card);
-            border-left: 1px solid var(--border-color);
+            width: 320px;
+            background: var(--bg-surface);
+            border-left: 1px solid var(--border);
             z-index: 50;
             display: flex;
             flex-direction: column;
             transform: translateX(100%);
-            transition: transform 0.25s ease-in-out;
+            transition: transform 0.2s ease-in-out;
         }
 
-        .drawer.open {
+        .drawer.active {
             transform: translateX(0);
-        }
-
-        .drawer-header {
-            padding: 16px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
         .history-list {
             flex: 1;
             overflow-y: auto;
-            padding: 10px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
             gap: 6px;
         }
 
         .history-item {
-            padding: 10px;
+            padding: 10px 12px;
             border-radius: 6px;
             border: 1px solid transparent;
-            cursor: pointer;
             font-size: 12px;
-            color: var(--text-muted);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            color: var(--text-dim);
+            cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .history-item:hover {
-            background: var(--bg-hover);
-            color: white;
-            border-color: var(--border-color);
+            background: var(--bg-card);
+            color: var(--text);
+            border-color: var(--border);
         }
 
-        /* Responsive for TV & Small Screens */
-        @media (max-width: 768px) {
-            .sidebar {
-                display: none;
-            }
-            .model-pill {
-                display: none;
-            }
+        .hidden { display: none !important; }
+
+        @media (max-width: 800px) {
+            .sidebar { display: none; }
+            .engine-pill { display: none; }
         }
     </style>
 </head>
@@ -448,93 +495,106 @@
 
     <!-- TOPBAR -->
     <header class="topbar">
-        <div class="brand">
-            <div class="brand-icon">⚡</div>
-            <span>DevAI Studio</span>
-            <span class="brand-badge">PRO</span>
+        <div class="brand-box">
+            <span>⚡ DevAI Studio</span>
+            <span class="brand-badge">PRO TV</span>
         </div>
 
-        <div class="model-pill">
-            <span id="badgeEngine" style="color: #3fb950;">GEMINI</span>
-            <span style="color: #8b949e;">/</span>
+        <div class="engine-pill">
+            <span id="badgeEngine" style="color: #2ea043; font-weight: bold;">GEMINI</span>
+            <span style="color: var(--text-dim)">/</span>
             <span id="badgeModel">gemini-2.0-flash</span>
         </div>
 
-        <div class="btn-group">
-            <button class="btn" onclick="startNewChat()">+ New Chat</button>
-            <button class="btn" onclick="toggleDrawer()">📜 History</button>
-            <button class="btn" onclick="openSettings()">⚙️ Settings</button>
+        <div class="actions">
+            <button class="btn" tabindex="0" onclick="startNewChat()">+ New Chat</button>
+            <button class="btn" tabindex="0" onclick="downloadCurrentChat()" title="Download Full Conversation as Markdown">📥 Export Chat</button>
+            <button class="btn" tabindex="0" onclick="toggleDrawer()">📜 History</button>
+            <button class="btn btn-primary" tabindex="0" onclick="openSettings()">⚙️ Settings</button>
         </div>
     </header>
 
-    <!-- MAIN BODY -->
+    <!-- WORKSPACE -->
     <div class="workspace">
         
         <!-- SIDEBAR PARAMETERS -->
         <aside class="sidebar">
-            <div class="sidebar-title">Studio Parameters</div>
+            <div class="sidebar-heading">Studio Controls</div>
 
-            <div class="param-group">
-                <label class="param-label">System Instructions</label>
-                <textarea id="systemPrompt" rows="4" class="sidebar-input" placeholder="You are a helpful software engineer AI..."></textarea>
+            <div class="control-group">
+                <label class="control-label">System Instructions</label>
+                <textarea id="systemPrompt" rows="4" class="sidebar-textarea" tabindex="0" placeholder="You are an expert AI software engineer..."></textarea>
             </div>
 
-            <div class="param-group">
-                <div class="param-label">
+            <div class="control-group">
+                <div class="control-label">
                     <span>Temperature</span>
-                    <span id="tempValue" class="param-value">0.7</span>
+                    <span id="tempDisplay" class="control-val">0.7</span>
                 </div>
-                <input id="tempSlider" type="range" min="0" max="2" step="0.1" value="0.7">
+                <input id="tempInput" type="range" min="0" max="2" step="0.1" value="0.7" tabindex="0">
             </div>
 
-            <div class="param-group">
-                <div class="param-label">
+            <div class="control-group">
+                <div class="control-label">
                     <span>Max Tokens</span>
-                    <span id="tokenValue" class="param-value">2048</span>
+                    <span id="tokenDisplay" class="control-val">2048</span>
                 </div>
-                <input id="tokenSlider" type="range" min="256" max="8192" step="256" value="2048">
+                <input id="tokenInput" type="range" min="256" max="8192" step="256" value="2048" tabindex="0">
+            </div>
+
+            <div style="background: var(--bg-base); padding: 10px; border-radius: 6px; border: 1px solid var(--border); font-size: 11px; color: var(--text-dim);">
+                💡 <b>TV Remote Tip:</b><br>
+                Use Remote <b>Up / Down buttons</b> to scroll chat and code blocks smoothly.
             </div>
         </aside>
 
-        <!-- CHAT AREA -->
-        <main class="chat-area">
-            <div id="messagesContainer" class="messages-container">
-                <!-- Welcome View -->
-                <div id="welcomeView" style="text-align: center; margin: auto; max-width: 450px; padding: 20px;">
-                    <div style="font-size: 40px; margin-bottom: 10px;">⚡</div>
-                    <h2 style="margin-bottom: 8px;">Developer AI Playground</h2>
-                    <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">
-                        Google Gemini & OpenRouter ready. Open <b>Settings (⚙️)</b> to add your API Key.
+        <!-- CHAT CANVAS -->
+        <main class="chat-canvas">
+            
+            <!-- MESSAGES CONTAINER -->
+            <div id="messagesContainer" class="messages-viewport" tabindex="0">
+                <div id="welcomeScreen" style="text-align:center; margin: auto; max-width: 480px; padding: 20px;">
+                    <div style="font-size: 48px; margin-bottom: 12px;">⚡</div>
+                    <h2 style="margin-bottom: 8px;">Developer AI Studio Pro</h2>
+                    <p style="color: var(--text-dim); font-size: 13px; margin-bottom: 16px;">
+                        Google Gemini & OpenRouter Engine ready for Android TV & Web. Click <b>Settings (⚙️)</b> to add your API Key.
                     </p>
                 </div>
             </div>
 
-            <!-- Typing Indicator -->
-            <div id="loadingIndicator" class="hidden" style="padding: 0 20px 8px; font-size: 12px; color: var(--accent-blue);">
-                ⏳ AI is generating response...
+            <!-- FLOATING REMOTE SCROLL BUTTONS -->
+            <div class="tv-scroll-hint">
+                <button class="scroll-nav-btn" tabindex="0" onclick="scrollChat(-200)" title="Scroll Up">▲</button>
+                <button class="scroll-nav-btn" tabindex="0" onclick="scrollChat(200)" title="Scroll Down">▼</button>
             </div>
 
-            <!-- Input Bar -->
-            <div class="input-bar">
-                <div class="input-wrapper">
-                    <textarea id="userInput" class="chat-input" placeholder="Ask AI anything or paste code..."></textarea>
-                    <div class="input-footer">
-                        <span>Press Enter to Send</span>
-                        <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+            <!-- LOADING BAR -->
+            <div id="loadingStatus" class="hidden" style="padding: 4px 20px; font-size: 12px; color: var(--accent); background: var(--bg-surface);">
+                ⏳ AI is writing code & response...
+            </div>
+
+            <!-- ALWAYS FIXED BOTTOM INPUT -->
+            <footer class="bottom-anchor-bar">
+                <div class="input-container">
+                    <textarea id="promptInput" class="chat-textarea" tabindex="0" placeholder="Type prompt or instructions here (Press Enter to Send)..."></textarea>
+                    <div class="input-actions-bar">
+                        <span class="tv-tip">⌨️ Remote Enter = Send</span>
+                        <button class="btn btn-primary" id="btnSendMsg" tabindex="0" onclick="handleSend()">Send Message</button>
                     </div>
                 </div>
-            </div>
+            </footer>
+
         </main>
 
         <!-- HISTORY DRAWER -->
         <div id="historyDrawer" class="drawer">
-            <div class="drawer-header">
+            <div style="padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                 <h3>Chat History</h3>
-                <button class="btn" onclick="toggleDrawer()">✕</button>
+                <button class="btn" tabindex="0" onclick="toggleDrawer()">✕</button>
             </div>
             <div id="historyList" class="history-list"></div>
-            <div style="padding: 12px; border-top: 1px solid var(--border-color);">
-                <button class="btn" style="width: 100%; color: var(--danger-color);" onclick="clearAllHistory()">Clear All History</button>
+            <div style="padding: 12px; border-top: 1px solid var(--border);">
+                <button class="btn" tabindex="0" style="width: 100%; color: var(--danger);" onclick="clearAllChats()">Clear All History</button>
             </div>
         </div>
 
@@ -544,39 +604,38 @@
     <div id="settingsModal" class="modal-overlay hidden">
         <div class="modal-card">
             <div class="modal-header">
-                <h3>API & Model Settings</h3>
-                <button class="btn" onclick="closeSettings()">✕</button>
+                <span>AI Engine & API Settings</span>
+                <button class="btn" tabindex="0" onclick="closeSettings()">✕</button>
             </div>
 
-            <!-- Engine Picker -->
             <div>
-                <label style="font-size: 12px; color: var(--text-muted);">SELECT ENGINE</label>
-                <select id="engineSelect" class="modal-input" onchange="toggleEngineFields()">
+                <label style="font-size: 12px; color: var(--text-dim); font-weight: bold;">ACTIVE ENGINE</label>
+                <select id="engineSelector" class="input-field" tabindex="0" onchange="toggleEngineUI()">
                     <option value="gemini">Google Gemini API</option>
                     <option value="openrouter">OpenRouter API</option>
                 </select>
             </div>
 
-            <!-- Gemini Config -->
-            <div id="geminiBox">
-                <label style="font-size: 12px; color: var(--text-muted);">Gemini API Key</label>
-                <input type="password" id="geminiKey" class="modal-input" placeholder="AIzaSy...">
+            <!-- Gemini Form -->
+            <div id="geminiFields">
+                <label style="font-size: 12px; color: var(--text-dim); font-weight: bold;">Gemini API Key</label>
+                <input type="password" id="geminiKey" class="input-field" tabindex="0" placeholder="AIzaSy...">
 
-                <label style="font-size: 12px; color: var(--text-muted); margin-top: 10px; display: block;">Gemini Model</label>
-                <select id="geminiModel" class="modal-input">
-                    <option value="gemini-2.0-flash">gemini-2.0-flash</option>
-                    <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+                <label style="font-size: 12px; color: var(--text-dim); font-weight: bold; margin-top: 8px; display: block;">Gemini Model</label>
+                <select id="geminiModel" class="input-field" tabindex="0">
+                    <option value="gemini-2.0-flash">gemini-2.0-flash (Recommended & Fast)</option>
+                    <option value="gemini-1.5-pro">gemini-1.5-pro (Deep Reasoning)</option>
                     <option value="gemini-1.5-flash">gemini-1.5-flash</option>
                 </select>
             </div>
 
-            <!-- OpenRouter Config -->
-            <div id="openrouterBox" class="hidden">
-                <label style="font-size: 12px; color: var(--text-muted);">OpenRouter API Key</label>
-                <input type="password" id="openrouterKey" class="modal-input" placeholder="sk-or-v1-...">
+            <!-- OpenRouter Form -->
+            <div id="openrouterFields" class="hidden">
+                <label style="font-size: 12px; color: var(--text-dim); font-weight: bold;">OpenRouter API Key</label>
+                <input type="password" id="openrouterKey" class="input-field" tabindex="0" placeholder="sk-or-v1-...">
 
-                <label style="font-size: 12px; color: var(--text-muted); margin-top: 10px; display: block;">OpenRouter Model</label>
-                <select id="openrouterModel" class="modal-input">
+                <label style="font-size: 12px; color: var(--text-dim); font-weight: bold; margin-top: 8px; display: block;">OpenRouter Model</label>
+                <select id="openrouterModel" class="input-field" tabindex="0">
                     <option value="deepseek/deepseek-r1">deepseek/deepseek-r1</option>
                     <option value="anthropic/claude-3.5-sonnet">anthropic/claude-3.5-sonnet</option>
                     <option value="openai/gpt-4o">openai/gpt-4o</option>
@@ -585,16 +644,16 @@
             </div>
 
             <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px;">
-                <button class="btn" onclick="closeSettings()">Cancel</button>
-                <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+                <button class="btn" tabindex="0" onclick="closeSettings()">Cancel</button>
+                <button class="btn btn-primary" tabindex="0" onclick="saveSettings()">Save & Apply</button>
             </div>
         </div>
     </div>
 
-    <!-- SCRIPT -->
+    <!-- LOGIC -->
     <script>
         // State
-        var state = {
+        var studio = {
             engine: 'gemini',
             geminiKey: '',
             geminiModel: 'gemini-2.0-flash',
@@ -607,119 +666,213 @@
             chats: []
         };
 
-        // Load & Initialize
-        window.onload = function() {
-            var saved = localStorage.getItem('devai_settings');
-            if (saved) {
-                try { Object.assign(state, JSON.parse(saved)); } catch(e){}
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', function() {
+            var savedSettings = localStorage.getItem('devai_tv_settings');
+            if (savedSettings) {
+                try { Object.assign(studio, JSON.parse(savedSettings)); } catch(e){}
             }
 
-            var savedChats = localStorage.getItem('devai_chats');
+            var savedChats = localStorage.getItem('devai_tv_chats');
             if (savedChats) {
-                try { state.chats = JSON.parse(savedChats); } catch(e){}
+                try { studio.chats = JSON.parse(savedChats); } catch(e){}
             }
 
-            document.getElementById('tempSlider').oninput = function() {
-                state.temperature = parseFloat(this.value);
-                document.getElementById('tempValue').innerText = state.temperature;
+            // Sync Sliders
+            document.getElementById('tempInput').oninput = function() {
+                studio.temperature = parseFloat(this.value);
+                document.getElementById('tempDisplay').innerText = studio.temperature;
             };
 
-            document.getElementById('tokenSlider').oninput = function() {
-                state.maxTokens = parseInt(this.value);
-                document.getElementById('tokenValue').innerText = state.maxTokens;
+            document.getElementById('tokenInput').oninput = function() {
+                studio.maxTokens = parseInt(this.value);
+                document.getElementById('tokenDisplay').innerText = studio.maxTokens;
             };
 
             document.getElementById('systemPrompt').onchange = function() {
-                state.systemPrompt = this.value;
+                studio.systemPrompt = this.value;
             };
 
-            document.getElementById('userInput').addEventListener('keydown', function(e) {
+            // Enter key to send
+            document.getElementById('promptInput').addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
-                    sendMessage();
+                    handleSend();
+                }
+            });
+
+            // TV Remote Up/Down D-Pad Global Scroll Handler
+            window.addEventListener('keydown', function(e) {
+                var active = document.activeElement;
+                var isTextInput = active.tagName === 'TEXTAREA' || active.tagName === 'INPUT';
+                
+                // If not typing in input, remote Up/Down arrows scroll message window directly
+                if (!isTextInput) {
+                    if (e.key === 'ArrowUp') {
+                        scrollChat(-120);
+                    } else if (e.key === 'ArrowDown') {
+                        scrollChat(120);
+                    }
                 }
             });
 
             syncUI();
-            renderHistory();
-        };
+            renderHistoryList();
+        });
 
+        // Smooth Scroll Helper
+        function scrollChat(offset) {
+            var container = document.getElementById('messagesContainer');
+            container.scrollBy({ top: offset, behavior: 'smooth' });
+        }
+
+        // Sync UI
         function syncUI() {
-            document.getElementById('engineSelect').value = state.engine;
-            document.getElementById('geminiKey').value = state.geminiKey;
-            document.getElementById('geminiModel').value = state.geminiModel;
-            document.getElementById('openrouterKey').value = state.openrouterKey;
-            document.getElementById('openrouterModel').value = state.openrouterModel;
-            document.getElementById('systemPrompt').value = state.systemPrompt;
-            
-            var isGem = state.engine === 'gemini';
+            document.getElementById('engineSelector').value = studio.engine;
+            document.getElementById('geminiKey').value = studio.geminiKey;
+            document.getElementById('geminiModel').value = studio.geminiModel;
+            document.getElementById('openrouterKey').value = studio.openrouterKey;
+            document.getElementById('openrouterModel').value = studio.openrouterModel;
+            document.getElementById('systemPrompt').value = studio.systemPrompt;
+            document.getElementById('tempInput').value = studio.temperature;
+            document.getElementById('tempDisplay').innerText = studio.temperature;
+            document.getElementById('tokenInput').value = studio.maxTokens;
+            document.getElementById('tokenDisplay').innerText = studio.maxTokens;
+
+            var isGem = studio.engine === 'gemini';
             document.getElementById('badgeEngine').innerText = isGem ? 'GEMINI' : 'OPENROUTER';
-            document.getElementById('badgeEngine').style.color = isGem ? '#3fb950' : '#a371f7';
-            document.getElementById('badgeModel').innerText = isGem ? state.geminiModel : state.openrouterModel;
+            document.getElementById('badgeEngine').style.color = isGem ? '#2ea043' : '#a371f7';
+            document.getElementById('badgeModel').innerText = isGem ? studio.geminiModel : studio.openrouterModel;
         }
 
         // Settings Modal
         function openSettings() {
+            toggleEngineUI();
             document.getElementById('settingsModal').classList.remove('hidden');
-            toggleEngineFields();
         }
 
         function closeSettings() {
             document.getElementById('settingsModal').classList.add('hidden');
         }
 
-        function toggleEngineFields() {
-            var engine = document.getElementById('engineSelect').value;
-            if (engine === 'gemini') {
-                document.getElementById('geminiBox').classList.remove('hidden');
-                document.getElementById('openrouterBox').classList.add('hidden');
+        function toggleEngineUI() {
+            var eng = document.getElementById('engineSelector').value;
+            if (eng === 'gemini') {
+                document.getElementById('geminiFields').classList.remove('hidden');
+                document.getElementById('openrouterFields').classList.add('hidden');
             } else {
-                document.getElementById('geminiBox').classList.add('hidden');
-                document.getElementById('openrouterBox').classList.remove('hidden');
+                document.getElementById('geminiFields').classList.add('hidden');
+                document.getElementById('openrouterFields').classList.remove('hidden');
             }
         }
 
         function saveSettings() {
-            state.engine = document.getElementById('engineSelect').value;
-            state.geminiKey = document.getElementById('geminiKey').value.trim();
-            state.geminiModel = document.getElementById('geminiModel').value;
-            state.openrouterKey = document.getElementById('openrouterKey').value.trim();
-            state.openrouterModel = document.getElementById('openrouterModel').value;
+            studio.engine = document.getElementById('engineSelector').value;
+            studio.geminiKey = document.getElementById('geminiKey').value.trim();
+            studio.geminiModel = document.getElementById('geminiModel').value;
+            studio.openrouterKey = document.getElementById('openrouterKey').value.trim();
+            studio.openrouterModel = document.getElementById('openrouterModel').value;
 
-            localStorage.setItem('devai_settings', JSON.stringify(state));
+            localStorage.setItem('devai_tv_settings', JSON.stringify(studio));
             syncUI();
             closeSettings();
-            alert('Settings saved!');
+            alert('Settings Saved Successfully!');
         }
 
-        // Drawer
         function toggleDrawer() {
-            document.getElementById('historyDrawer').classList.toggle('open');
+            document.getElementById('historyDrawer').classList.toggle('active');
         }
 
-        // Chat Management
         function startNewChat() {
-            state.currentChatId = null;
-            renderMessages();
-            document.getElementById('historyDrawer').classList.remove('open');
+            studio.currentChatId = null;
+            renderChat();
+            document.getElementById('historyDrawer').classList.remove('active');
+            document.getElementById('promptInput').focus();
         }
 
         function getCurrentChat() {
-            for (var i = 0; i < state.chats.length; i++) {
-                if (state.chats[i].id === state.currentChatId) return state.chats[i];
+            for (var i = 0; i < studio.chats.length; i++) {
+                if (studio.chats[i].id === studio.currentChatId) return studio.chats[i];
             }
             return null;
         }
 
-        async function sendMessage() {
-            var input = document.getElementById('userInput');
+        // Universal File Downloader (TV & Browser Compatible)
+        function triggerDownload(filename, content, mimeType) {
+            try {
+                var blob = new Blob([content], { type: mimeType || 'text/plain;charset=utf-8' });
+                var link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href);
+            } catch(e) {
+                alert('Download failed: ' + e.message);
+            }
+        }
+
+        // Universal Clipboard Copy (TV Compatible)
+        function copyTextToClipboard(text, btnElement) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(showSuccess, fallbackCopy);
+            } else {
+                fallbackCopy();
+            }
+
+            function fallbackCopy() {
+                var ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                try {
+                    document.execCommand('copy');
+                    showSuccess();
+                } catch(err) {
+                    alert('Could not copy automatically.');
+                }
+                document.body.removeChild(ta);
+            }
+
+            function showSuccess() {
+                if (btnElement) {
+                    var old = btnElement.innerText;
+                    btnElement.innerText = '✅ Copied!';
+                    setTimeout(function(){ btnElement.innerText = old; }, 2000);
+                }
+            }
+        }
+
+        // Download Entire Conversation as Markdown
+        function downloadCurrentChat() {
+            var chat = getCurrentChat();
+            if (!chat || !chat.messages.length) {
+                alert('No active conversation to export!');
+                return;
+            }
+
+            var md = '# ' + chat.title + '\n\n';
+            chat.messages.forEach(function(m) {
+                md += '### ' + (m.role === 'user' ? '👤 USER' : '🤖 AI ASSISTANT') + ':\n';
+                md += m.content + '\n\n---\n\n';
+            });
+
+            triggerDownload((chat.title.replace(/[^a-zA-Z0-9]/g, '_') || 'chat') + '.md', md, 'text/markdown');
+        }
+
+        // SEND MESSAGE HANDLER
+        async function handleSend() {
+            var input = document.getElementById('promptInput');
             var text = input.value.trim();
             if (!text) return;
 
-            var key = state.engine === 'gemini' ? state.geminiKey : state.openrouterKey;
+            var key = studio.engine === 'gemini' ? studio.geminiKey : studio.openrouterKey;
             if (!key) {
                 openSettings();
-                alert('Please enter your ' + (state.engine === 'gemini' ? 'Gemini' : 'OpenRouter') + ' API Key first!');
+                alert('Please enter your ' + (studio.engine === 'gemini' ? 'Google Gemini' : 'OpenRouter') + ' API Key!');
                 return;
             }
 
@@ -730,37 +883,38 @@
                     title: text.substring(0, 30),
                     messages: []
                 };
-                state.chats.unshift(chat);
-                state.currentChatId = chat.id;
+                studio.chats.unshift(chat);
+                studio.currentChatId = chat.id;
             }
 
             chat.messages.push({ role: 'user', content: text });
             input.value = '';
-            renderMessages();
+            renderChat();
 
-            document.getElementById('loadingIndicator').classList.remove('hidden');
+            var loader = document.getElementById('loadingStatus');
+            loader.classList.remove('hidden');
 
             try {
-                var reply = '';
-                if (state.engine === 'gemini') {
-                    reply = await callGemini(chat.messages);
+                var responseText = '';
+                if (studio.engine === 'gemini') {
+                    responseText = await callGeminiAPI(chat.messages);
                 } else {
-                    reply = await callOpenRouter(chat.messages);
+                    responseText = await callOpenRouterAPI(chat.messages);
                 }
-                chat.messages.push({ role: 'ai', content: reply });
-            } catch(err) {
+                chat.messages.push({ role: 'ai', content: responseText });
+            } catch (err) {
                 chat.messages.push({ role: 'ai', content: '❌ Error: ' + err.message });
             } finally {
-                document.getElementById('loadingIndicator').classList.add('hidden');
-                localStorage.setItem('devai_chats', JSON.stringify(state.chats));
-                renderMessages();
-                renderHistory();
+                loader.classList.add('hidden');
+                localStorage.setItem('devai_tv_chats', JSON.stringify(studio.chats));
+                renderChat();
+                renderHistoryList();
             }
         }
 
-        // Gemini API
-        async function callGemini(messages) {
-            var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + state.geminiModel + ':generateContent?key=' + state.geminiKey;
+        // Gemini REST Call
+        async function callGeminiAPI(messages) {
+            var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + studio.geminiModel + ':generateContent?key=' + studio.geminiKey;
             
             var contents = messages.map(function(m) {
                 return {
@@ -769,37 +923,38 @@
                 };
             });
 
-            var body = {
+            var payload = {
                 contents: contents,
                 generationConfig: {
-                    temperature: state.temperature,
-                    maxOutputTokens: state.maxTokens
+                    temperature: studio.temperature,
+                    maxOutputTokens: studio.maxTokens
                 }
             };
 
-            if (state.systemPrompt) {
-                body.systemInstruction = { parts: [{ text: state.systemPrompt }] };
+            if (studio.systemPrompt.trim()) {
+                payload.systemInstruction = { parts: [{ text: studio.systemPrompt }] };
             }
 
             var res = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
+                body: JSON.stringify(payload)
             });
 
             var data = await res.json();
-            if (!res.ok) throw new Error(data.error ? data.error.message : 'Gemini Error');
+            if (!res.ok) throw new Error(data.error ? data.error.message : 'Gemini Request Failed');
             return data.candidates[0].content.parts[0].text;
         }
 
-        // OpenRouter API
-        async function callOpenRouter(messages) {
+        // OpenRouter REST Call
+        async function callOpenRouterAPI(messages) {
             var url = 'https://openrouter.ai/api/v1/chat/completions';
-            
             var formatted = [];
-            if (state.systemPrompt) {
-                formatted.push({ role: 'system', content: state.systemPrompt });
+
+            if (studio.systemPrompt.trim()) {
+                formatted.push({ role: 'system', content: studio.systemPrompt });
             }
+
             messages.forEach(function(m) {
                 formatted.push({ role: m.role === 'user' ? 'user' : 'assistant', content: m.content });
             });
@@ -808,33 +963,33 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + state.openrouterKey
+                    'Authorization': 'Bearer ' + studio.openrouterKey
                 },
                 body: JSON.stringify({
-                    model: state.openrouterModel,
+                    model: studio.openrouterModel,
                     messages: formatted,
-                    temperature: state.temperature,
-                    max_tokens: state.maxTokens
+                    temperature: studio.temperature,
+                    max_tokens: studio.maxTokens
                 })
             });
 
             var data = await res.json();
-            if (!res.ok) throw new Error(data.error ? data.error.message : 'OpenRouter Error');
+            if (!res.ok) throw new Error(data.error ? data.error.message : 'OpenRouter Request Failed');
             return data.choices[0].message.content;
         }
 
-        // Render Functions
-        function renderMessages() {
+        // RENDER CHAT WITH CODE DOWNLOAD & COPY BUTTONS
+        function renderChat() {
             var container = document.getElementById('messagesContainer');
             var chat = getCurrentChat();
 
-            if (!chat || chat.messages.length === 0) {
+            if (!chat || !chat.messages.length) {
                 container.innerHTML = `
-                    <div style="text-align: center; margin: auto; max-width: 450px; padding: 20px;">
-                        <div style="font-size: 40px; margin-bottom: 10px;">⚡</div>
-                        <h2 style="margin-bottom: 8px;">Developer AI Playground</h2>
-                        <p style="color: var(--text-muted); font-size: 13px;">
-                            Gemini & OpenRouter Ready.
+                    <div id="welcomeScreen" style="text-align:center; margin: auto; max-width: 480px; padding: 20px;">
+                        <div style="font-size: 48px; margin-bottom: 12px;">⚡</div>
+                        <h2 style="margin-bottom: 8px;">Developer AI Studio Pro</h2>
+                        <p style="color: var(--text-dim); font-size: 13px;">
+                            Google Gemini & OpenRouter ready. Use remote to navigate and scroll.
                         </p>
                     </div>
                 `;
@@ -842,55 +997,125 @@
             }
 
             container.innerHTML = '';
-            chat.messages.forEach(function(m) {
-                var box = document.createElement('div');
-                box.className = 'msg-box ' + (m.role === 'user' ? 'user' : 'ai');
+
+            chat.messages.forEach(function(msg, msgIdx) {
+                var row = document.createElement('div');
+                row.className = 'msg-row ' + (msg.role === 'user' ? 'user' : 'ai');
 
                 var avatar = document.createElement('div');
-                avatar.className = 'msg-avatar ' + (m.role === 'user' ? 'user' : 'ai');
-                avatar.innerText = m.role === 'user' ? 'U' : 'AI';
+                avatar.className = 'msg-avatar';
+                avatar.innerText = msg.role === 'user' ? '👤' : '⚡';
 
-                var content = document.createElement('div');
-                content.className = 'msg-content';
-                content.innerText = m.content;
+                var bubble = document.createElement('div');
+                bubble.className = 'msg-bubble';
 
-                if (m.role === 'user') {
-                    box.appendChild(content);
-                    box.appendChild(avatar);
+                if (msg.role === 'user') {
+                    bubble.innerText = msg.content;
+                    row.appendChild(bubble);
+                    row.appendChild(avatar);
                 } else {
-                    box.appendChild(avatar);
-                    box.appendChild(content);
+                    bubble.innerHTML = parseMarkdownAndCode(msg.content, msgIdx);
+                    row.appendChild(avatar);
+                    row.appendChild(bubble);
                 }
 
-                container.appendChild(box);
+                container.appendChild(row);
             });
 
+            // Auto scroll down smoothly
             container.scrollTop = container.scrollHeight;
         }
 
-        function renderHistory() {
+        // Lightweight Markdown & Code Block Parser with Download Attachment
+        function parseMarkdownAndCode(text, msgIdx) {
+            var escaped = text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+
+            // Replace ```lang ... ``` blocks
+            var codeBlockRegex = /```([a-zA-Z0-9_\-]*)?\n([\s\S]*?)```/g;
+            var blockCount = 0;
+
+            var html = escaped.replace(codeBlockRegex, function(match, lang, code) {
+                blockCount++;
+                lang = (lang || 'code').toLowerCase();
+                var cleanCode = code.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+                var codeId = 'code_' + msgIdx + '_' + blockCount;
+
+                // Save code block to global memory for download
+                window['_code_' + codeId] = { code: cleanCode, lang: lang };
+
+                return `
+                    <div class="code-card">
+                        <div class="code-header">
+                            <span>💻 ${lang.toUpperCase()}</span>
+                            <div class="code-actions">
+                                <button class="code-action-btn" tabindex="0" onclick="copyCodeBlock('${codeId}', this)">📋 Copy</button>
+                                <button class="code-action-btn" tabindex="0" onclick="downloadCodeBlock('${codeId}')">💾 Download .${getFileExt(lang)}</button>
+                            </div>
+                        </div>
+                        <pre><code>${code}</code></pre>
+                    </div>
+                `;
+            });
+
+            // Convert newlines to <br> outside of pre
+            return html.replace(/\n/g, '<br>');
+        }
+
+        function getFileExt(lang) {
+            var map = {
+                javascript: 'js', js: 'js', typescript: 'ts', ts: 'ts',
+                html: 'html', css: 'css', python: 'py', py: 'py',
+                json: 'json', java: 'java', cpp: 'cpp', c: 'c',
+                php: 'php', sql: 'sql', sh: 'sh', bash: 'sh'
+            };
+            return map[lang] || 'txt';
+        }
+
+        function copyCodeBlock(codeId, btn) {
+            var item = window['_code_' + codeId];
+            if (item) copyTextToClipboard(item.code, btn);
+        }
+
+        function downloadCodeBlock(codeId) {
+            var item = window['_code_' + codeId];
+            if (item) {
+                var ext = getFileExt(item.lang);
+                triggerDownload('script_' + Date.now() + '.' + ext, item.code, 'text/plain');
+            }
+        }
+
+        // History Drawer
+        function renderHistoryList() {
             var list = document.getElementById('historyList');
             list.innerHTML = '';
-            state.chats.forEach(function(c) {
+
+            studio.chats.forEach(function(c) {
                 var div = document.createElement('div');
                 div.className = 'history-item';
-                div.innerText = c.title;
+                div.tabIndex = 0;
+                div.innerHTML = `<span>💬 ${c.title}</span>`;
                 div.onclick = function() {
-                    state.currentChatId = c.id;
-                    renderMessages();
+                    studio.currentChatId = c.id;
+                    renderChat();
                     toggleDrawer();
+                };
+                div.onkeydown = function(e) {
+                    if (e.key === 'Enter') div.click();
                 };
                 list.appendChild(div);
             });
         }
 
-        function clearAllHistory() {
-            if (confirm('Clear all chat history?')) {
-                state.chats = [];
-                state.currentChatId = null;
-                localStorage.removeItem('devai_chats');
-                renderHistory();
-                renderMessages();
+        function clearAllChats() {
+            if (confirm('Clear all conversation history?')) {
+                studio.chats = [];
+                studio.currentChatId = null;
+                localStorage.removeItem('devai_tv_chats');
+                renderHistoryList();
+                renderChat();
             }
         }
     </script>
