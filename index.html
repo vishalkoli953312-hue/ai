@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevAI Studio Pro - Developer AI Playground</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        studio: {
+                            bg: '#0d1117',
+                            card: '#161b22',
+                            border: '#30363d',
+                            accent: '#388bfd',
+                            hover: '#1f242c',
+                            text: '#c9d1d9',
+                            muted: '#8b949e'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Marked.js (Markdown Parsing) -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <!-- Highlight.js (Code Syntax Highlighting) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark-reasonable.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d1117;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #484f58;
+        }
+        
+        /* Markdown Code block styling */
+        .markdown-body pre {
+            background-color: #090d12 !important;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 1rem;
+            overflow-x: auto;
+            position: relative;
+            margin: 0.8rem 0;
+        }
+        .markdown-body code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.9em;
+        }
+        .markdown-body p { margin-bottom: 0.75rem; line-height: 1.6; }
+        .markdown-body p:last-child { margin-bottom: 0; }
+        .markdown-body ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 0.75rem; }
+        .markdown-body ol { list-style-type: decimal; margin-left: 1.5rem; margin-bottom: 0.75rem; }
+        .markdown-body h1, .markdown-body h2, .markdown-body h3 { font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem; color: #f0f6fc; }
+        .markdown-body blockquote { border-left: 4px solid #388bfd; padding-left: 1rem; color: #8b949e; margin: 0.5rem 0; }
+    </style>
+</head>
+<body class="bg-studio-bg text-studio-text flex flex-col h-screen overflow-hidden font-sans antialiased">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="h-14 border-b border-studio-border bg-studio-card/80 backdrop-blur px-4 flex items-center justify-between shrink-0 select-none z-20">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/20">
+                <i class="fa-solid fa-brain text-sm"></i>
+            </div>
+            <div>
+                <span class="font-bold text-white tracking-wide text-sm sm:text-base">DevAI Studio</span>
+                <span class="text-xs bg-blue-500/10 text-blue-400 border border-blue-500/30 px-1.5 py-0.5 rounded font-mono ml-1.5">PRO</span>
+            </div>
+        </div>
+
+        <!-- Active Provider & Model Badge -->
+        <div class="hidden md:flex items-center gap-2 bg-studio-bg border border-studio-border px-3 py-1.5 rounded-full text-xs font-mono">
+            <span id="badgeProvider" class="text-emerald-400 font-semibold uppercase">Gemini</span>
+            <span class="text-studio-muted">/</span>
+            <span id="badgeModel" class="text-white truncate max-w-[200px]">gemini-2.0-flash</span>
+        </div>
+
+        <!-- Action Icons -->
+        <div class="flex items-center gap-2">
+            <button id="btnNewChat" class="flex items-center gap-1.5 text-xs bg-studio-hover hover:bg-studio-border border border-studio-border text-white px-3 py-1.5 rounded-md transition" title="Start New Chat">
+                <i class="fa-solid fa-plus"></i>
+                <span class="hidden sm:inline">New Chat</span>
+            </button>
+            <button id="btnHistory" class="w-9 h-9 flex items-center justify-center rounded-md hover:bg-studio-hover border border-transparent hover:border-studio-border text-studio-muted hover:text-white transition" title="Chat History">
+                <i class="fa-solid fa-clock-rotate-left text-sm"></i>
+            </button>
+            <button id="btnSettings" class="w-9 h-9 flex items-center justify-center rounded-md hover:bg-studio-hover border border-transparent hover:border-studio-border text-studio-muted hover:text-white transition relative" title="Settings & API Keys">
+                <i class="fa-solid fa-sliders text-sm"></i>
+                <span id="keyMissingAlert" class="absolute top-1.5 right-1.5 w-2 h-2 bg-amber-500 rounded-full animate-ping hidden"></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN WORKSPACE LAYOUT -->
+    <div class="flex-1 flex overflow-hidden relative">
+
+        <!-- LEFT SIDEBAR: System Instructions & Parameters (Developer AI Studio Style) -->
+        <aside id="leftSidebar" class="w-72 bg-studio-card border-r border-studio-border flex flex-col shrink-0 hidden lg:flex select-none">
+            <div class="p-3.5 border-b border-studio-border flex items-center justify-between">
+                <span class="text-xs font-semibold text-white tracking-wider uppercase flex items-center gap-2">
+                    <i class="fa-solid fa-microchip text-blue-400"></i> Parameters
+                </span>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-4 space-y-5 text-xs">
+                <!-- System Prompt Box -->
+                <div>
+                    <label class="block font-medium text-white mb-1 flex items-center justify-between">
+                        <span>System Instructions</span>
+                        <i class="fa-solid fa-info-circle text-studio-muted" title="Give instructions and behavioral guidelines to the model"></i>
+                    </label>
+                    <textarea id="systemPrompt" rows="4" placeholder="You are an expert full-stack developer and AI assistant..." class="w-full bg-studio-bg border border-studio-border rounded-md p-2 text-white focus:outline-none focus:border-blue-500 transition resize-none"></textarea>
+                </div>
+
+                <!-- Temperature Slider -->
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="font-medium text-white">Temperature</label>
+                        <span id="tempValue" class="font-mono text-blue-400">0.7</span>
+                    </div>
+                    <input id="tempSlider" type="range" min="0" max="2" step="0.1" value="0.7" class="w-full accent-blue-500 cursor-pointer">
+                    <p class="text-[10px] text-studio-muted mt-1">Lower = deterministic, Higher = creative.</p>
+                </div>
+
+                <!-- Max Tokens -->
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="font-medium text-white">Max Output Tokens</label>
+                        <span id="tokensValue" class="font-mono text-blue-400">2048</span>
+                    </div>
+                    <input id="tokensSlider" type="range" min="256" max="8192" step="256" value="2048" class="w-full accent-blue-500 cursor-pointer">
+                </div>
+
+                <!-- Quick Provider/Model Switcher info -->
+                <div class="p-3 rounded-lg bg-studio-bg border border-studio-border/60">
+                    <div class="text-[11px] font-semibold text-studio-muted uppercase mb-1">Current Engine</div>
+                    <div class="text-white font-medium flex items-center justify-between">
+                        <span id="sideProviderText">Gemini API</span>
+                        <button onclick="openSettingsModal()" class="text-blue-400 hover:underline text-xs">Change</button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CENTER CHAT PLAYGROUND -->
+        <main class="flex-1 flex flex-col bg-studio-bg overflow-hidden relative">
+            <!-- Message List -->
+            <div id="chatContainer" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+                <!-- Welcome Banner (When empty) -->
+                <div id="welcomeBanner" class="h-full flex flex-col items-center justify-center text-center max-w-lg mx-auto p-6 space-y-4">
+                    <div class="w-16 h-16 rounded-2xl bg-studio-card border border-studio-border flex items-center justify-center text-blue-400 text-3xl shadow-xl shadow-blue-500/5">
+                        <i class="fa-solid fa-code-merge"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">DevAI Studio Playground</h2>
+                    <p class="text-xs sm:text-sm text-studio-muted leading-relaxed">
+                        Dual-Engine AI Developer Environment for Gemini & OpenRouter. Input your API Keys in settings to start coding, debugging, or generating content.
+                    </p>
+                    <div class="flex flex-wrap gap-2 justify-center pt-2">
+                        <button onclick="applyStarterPrompt('Write a clean JavaScript debounce function with TypeScript types')" class="text-xs bg-studio-card hover:bg-studio-hover border border-studio-border px-3 py-2 rounded-lg text-studio-text transition">
+                            💻 Write TypeScript debounce function
+                        </button>
+                        <button onclick="applyStarterPrompt('Explain the difference between WebSockets and SSE with architecture diagram in ASCII')" class="text-xs bg-studio-card hover:bg-studio-hover border border-studio-border px-3 py-2 rounded-lg text-studio-text transition">
+                            ⚡ WebSockets vs SSE
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Typing Indicator (Hidden by default) -->
+            <div id="typingIndicator" class="hidden px-6 py-2 flex items-center gap-2 text-xs text-blue-400 font-mono">
+                <i class="fa-solid fa-circle-notch fa-spin"></i>
+                <span id="loadingStatus">AI is thinking & generating code...</span>
+            </div>
+
+            <!-- PROMPT INPUT BAR -->
+            <div class="p-3 sm:p-4 bg-studio-card border-t border-studio-border">
+                <div class="max-w-4xl mx-auto flex flex-col bg-studio-bg border border-studio-border rounded-xl focus-within:border-blue-500/80 transition-all shadow-lg shadow-black/20">
+                    <textarea id="userInput" rows="1" placeholder="Type a message or paste code (Shift + Enter for new line)..." class="w-full bg-transparent p-3 sm:p-3.5 text-white text-sm focus:outline-none resize-none max-h-48 overflow-y-auto"></textarea>
+                    
+                    <div class="flex items-center justify-between px-3 py-2 border-t border-studio-border/40 text-xs">
+                        <div class="flex items-center gap-2 text-studio-muted font-mono text-[11px]">
+                            <span id="charCount">0 chars</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button id="btnSend" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-4 py-1.5 rounded-lg flex items-center gap-1.5 transition text-xs shadow-md shadow-blue-600/20 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <span>Send</span>
+                                <i class="fa-solid fa-arrow-up text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- RIGHT SLIDE-OVER: CHAT HISTORY -->
+        <div id="historyDrawer" class="fixed inset-y-0 right-0 w-80 bg-studio-card border-l border-studio-border shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-30 flex flex-col">
+            <div class="p-4 border-b border-studio-border flex items-center justify-between">
+                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-history text-blue-400"></i> Conversation History
+                </h3>
+                <button id="btnCloseHistory" class="text-studio-muted hover:text-white">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+            
+            <div id="historyList" class="flex-1 overflow-y-auto p-3 space-y-2">
+                <!-- Chat History items dynamically inserted here -->
+            </div>
+
+            <div class="p-3 border-t border-studio-border">
+                <button id="btnClearAllHistory" class="w-full py-2 text-xs text-rose-400 hover:bg-rose-500/10 border border-rose-500/20 rounded-md transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-trash-can"></i> Clear All History
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SETTINGS MODAL (Gemini & OpenRouter API Configuration) -->
+    <div id="settingsModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-studio-card border border-studio-border w-full max-w-lg rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <!-- Modal Header -->
+            <div class="px-5 py-4 border-b border-studio-border flex items-center justify-between">
+                <div class="flex items-center gap-2 font-bold text-white text-base">
+                    <i class="fa-solid fa-sliders text-blue-400"></i> Engine & API Settings
+                </div>
+                <button onclick="closeSettingsModal()" class="text-studio-muted hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-5 space-y-5 text-xs sm:text-sm max-h-[80vh] overflow-y-auto">
+                <!-- Provider Switcher Tabs -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-studio-muted mb-2">Select Active Engine</label>
+                    <div class="grid grid-cols-2 gap-2 bg-studio-bg p-1 rounded-lg border border-studio-border">
+                        <button id="tabGemini" onclick="switchProviderTab('gemini')" class="py-2 rounded-md font-medium text-xs flex items-center justify-center gap-2 transition bg-blue-600 text-white">
+                            <i class="fa-brands fa-google"></i> Google Gemini
+                        </button>
+                        <button id="tabOpenRouter" onclick="switchProviderTab('openrouter')" class="py-2 rounded-md font-medium text-xs flex items-center justify-center gap-2 transition text-studio-muted hover:text-white">
+                            <i class="fa-solid fa-network-wired"></i> OpenRouter
+                        </button>
+                    </div>
+                </div>
+
+                <!-- GEMINI CONFIG SECTION -->
+                <div id="sectionGemini" class="space-y-4">
+                    <div>
+                        <label class="block font-medium text-white mb-1">Gemini API Key</label>
+                        <div class="relative">
+                            <input type="password" id="geminiApiKey" placeholder="AIzaSy..." class="w-full bg-studio-bg border border-studio-border rounded-lg px-3 py-2 text-white pr-10 focus:outline-none focus:border-blue-500 font-mono text-xs">
+                            <button onclick="toggleKeyVisibility('geminiApiKey', this)" class="absolute right-3 top-2.5 text-studio-muted hover:text-white">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                        <p class="text-[11px] text-studio-muted mt-1">Get key from <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-400 hover:underline">Google AI Studio</a></p>
+                    </div>
+
+                    <div>
+                        <label class="block font-medium text-white mb-1">Gemini Model</label>
+                        <select id="geminiModelSelect" class="w-full bg-studio-bg border border-studio-border rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 font-mono text-xs">
+                            <option value="gemini-2.0-flash">gemini-2.0-flash (Fast & Next-Gen)</option>
+                            <option value="gemini-1.5-pro">gemini-1.5-pro (Deep Reasoning & Large Context)</option>
+                            <option value="gemini-1.5-flash">gemini-1.5-flash (Balanced & Lightweight)</option>
+                            <option value="gemini-1.5-flash-8b">gemini-1.5-flash-8b (Ultra Fast)</option>
+                            <option value="custom">Custom Model Name...</option>
+                        </select>
+                        <input type="text" id="geminiCustomModel" placeholder="e.g. gemini-2.5-pro-exp" class="w-full bg-studio-bg border border-studio-border rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 font-mono text-xs mt-2 hidden">
+                    </div>
+                </div>
+
+                <!-- OPENROUTER CONFIG SECTION -->
+                <div id="sectionOpenRouter" class="space-y-4 hidden">
+                    <div>
+                        <label class="block font-medium text-white mb-1">OpenRouter API Key</label>
+                        <div class="relative">
+                            <input type="password" id="openRouterApiKey" placeholder="sk-or-v1-..." class="w-full bg-studio-bg border border-studio-border rounded-lg px-3 py-2 text-white pr-10 focus:outline-none focus:border-blue-500 font-mono text-xs">
+                            <button onclick="toggleKeyVisibility('openRouterApiKey', this)" class="absolute right-3 top-2.5 text-studio-muted hover:text-white">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                        <p class="text-[11px] text-studio-muted mt-1">Get key from <a href="https://openrouter.ai/keys" target="_blank" class="text-blue-400 hover:underline">openrouter.ai/keys</a></p>
+                    </div>
+
+                    <div>
+                        <label class="block font-medium text-white mb-1">OpenRouter Model</label>
+                        <select id="openRouterModelSelect" class="w-full bg-studio-bg border border-studio-border rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 font-mono text-xs">
+                            <option value="deepseek/deepseek-r1">deepseek/deepseek-r1 (Top Reasoning Model)</option>
+                            <option value="deepseek/deepseek-chat">deepseek/deepseek-chat (V3 Fast)</option>
+                            <option value="anthropic/claude-3.5-sonnet">anthropic/claude-3.5-sonnet (Best for Coding)</option>
+                            <option value="openai/gpt-4o">openai/gpt-4o (Omni Flagship)</option>
+                            <option value="meta-llama/llama-3.3-70b-instruct">meta-llama/llama-3.3-70b-instruct (Open Source)</option>
+                            <option value="mistralai/mistral-large-2407">mistralai/mistral-large-2407</option>
+                            <option value="google/gemini-2.0-flash-exp:free">google/gemini-2.0-flash-exp:free (Free Tier)</option>
+                            <option value="custom">Custom Model Tag...</option>
+                        </select>
+                        <input type="text" id="openRouterCustomModel" placeholder="e.g. qwen/qwen-2.5-coder-32b-instruct" class="w-full bg-studio-bg border border-studio-border rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500 font-mono text-xs mt-2 hidden">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-5 py-3 border-t border-studio-border bg-studio-bg/50 flex justify-end gap-2">
+                <button onclick="closeSettingsModal()" class="px-4 py-1.5 rounded-lg text-xs text-studio-muted hover:text-white border border-studio-border transition">Cancel</button>
+                <button onclick="saveSettings()" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-500 text-white transition shadow-lg shadow-blue-600/20">Save & Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-studio-card border border-studio-border px-4 py-2.5 rounded-lg text-xs text-white shadow-2xl transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-2">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toastMsg">Settings Saved Successfully</span>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // State Management
+        let appState = {
+            provider: 'gemini', // 'gemini' | 'openrouter'
+            geminiKey: '',
+            geminiModel: 'gemini-2.0-flash',
+            openRouterKey: '',
+            openRouterModel: 'deepseek/deepseek-r1',
+            systemPrompt: 'You are a world-class software engineer and helpful AI assistant.',
+            temperature: 0.7,
+            maxTokens: 2048,
+            currentChatId: null,
+            chats: [] // Array of { id, title, timestamp, messages: [{role, content}] }
+        };
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFromStorage();
+            setupEventListeners();
+            checkApiKeyStatus();
+            renderHistoryList();
+            
+            // Auto resize input
+            const input = document.getElementById('userInput');
+            input.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 180) + 'px';
+                document.getElementById('charCount').innerText = `${this.value.length} chars`;
+            });
+
+            // Highlight configure
+            marked.setOptions({
+                highlight: function(code, lang) {
+                    if (lang && hljs.getLanguage(lang)) {
+                        return hljs.highlight(code, { language: lang }).value;
+                    }
+                    return hljs.highlightAuto(code).value;
+                },
+                breaks: true
+            });
+        });
+
+        // Load & Save to LocalStorage
+        function loadFromStorage() {
+            const saved = localStorage.getItem('devai_studio_settings');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    appState = { ...appState, ...parsed };
+                } catch(e) { console.error(e); }
+            }
+
+            const savedChats = localStorage.getItem('devai_studio_chats');
+            if (savedChats) {
+                try {
+                    appState.chats = JSON.parse(savedChats);
+                } catch(e) { appState.chats = []; }
+            }
+
+            // Sync UI with state
+            document.getElementById('systemPrompt').value = appState.systemPrompt;
+            document.getElementById('tempSlider').value = appState.temperature;
+            document.getElementById('tempValue').innerText = appState.temperature;
+            document.getElementById('tokensSlider').value = appState.maxTokens;
+            document.getElementById('tokensValue').innerText = appState.maxTokens;
+            
+            document.getElementById('geminiApiKey').value = appState.geminiKey;
+            document.getElementById('openRouterApiKey').value = appState.openRouterKey;
+
+            // Set Gemini select
+            const geminiSelect = document.getElementById('geminiModelSelect');
+            if (['gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-1.5-flash-8b'].includes(appState.geminiModel)) {
+                geminiSelect.value = appState.geminiModel;
+            } else {
+                geminiSelect.value = 'custom';
+                document.getElementById('geminiCustomModel').classList.remove('hidden');
+                document.getElementById('geminiCustomModel').value = appState.geminiModel;
+            }
+
+            // Set OpenRouter select
+            const orSelect = document.getElementById('openRouterModelSelect');
+            if (['deepseek/deepseek-r1', 'deepseek/deepseek-chat', 'anthropic/claude-3.5-sonnet', 'openai/gpt-4o', 'meta-llama/llama-3.3-70b-instruct', 'mistralai/mistral-large-2407', 'google/gemini-2.0-flash-exp:free'].includes(appState.openRouterModel)) {
+                orSelect.value = appState.openRouterModel;
+            } else {
+                orSelect.value = 'custom';
+                document.getElementById('openRouterCustomModel').classList.remove('hidden');
+                document.getElementById('openRouterCustomModel').value = appState.openRouterModel;
+            }
+
+            updateBadges();
+        }
+
+        function saveToStorage() {
+            localStorage.setItem('devai_studio_settings', JSON.stringify({
+                provider: appState.provider,
+                geminiKey: appState.geminiKey,
+                geminiModel: appState.geminiModel,
+                openRouterKey: appState.openRouterKey,
+                openRouterModel: appState.openRouterModel,
+                systemPrompt: appState.systemPrompt,
+                temperature: appState.temperature,
+                maxTokens: appState.maxTokens
+            }));
+            localStorage.setItem('devai_studio_chats', JSON.stringify(appState.chats));
+            updateBadges();
+            checkApiKeyStatus();
+        }
+
+        function updateBadges() {
+            const isGemini = appState.provider === 'gemini';
+            document.getElementById('badgeProvider').innerText = isGemini ? 'Gemini' : 'OpenRouter';
+            document.getElementById('badgeProvider').className = isGemini ? 'text-blue-400 font-semibold uppercase' : 'text-purple-400 font-semibold uppercase';
+            document.getElementById('badgeModel').innerText = isGemini ? appState.geminiModel : appState.openRouterModel;
+            document.getElementById('sideProviderText').innerText = isGemini ? `Gemini (${appState.geminiModel})` : `OpenRouter (${appState.openRouterModel.split('/')[1] || appState.openRouterModel})`;
+        }
+
+        function checkApiKeyStatus() {
+            const activeKey = appState.provider === 'gemini' ? appState.geminiKey : appState.openRouterKey;
+            const alertDot = document.getElementById('keyMissingAlert');
+            if (!activeKey) {
+                alertDot.classList.remove('hidden');
+            } else {
+                alertDot.classList.add('hidden');
+            }
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Sliders
+            document.getElementById('tempSlider').addEventListener('input', (e) => {
+                appState.temperature = parseFloat(e.target.value);
+                document.getElementById('tempValue').innerText = appState.temperature;
+                saveToStorage();
+            });
+
+            document.getElementById('tokensSlider').addEventListener('input', (e) => {
+                appState.maxTokens = parseInt(e.target.value);
+                document.getElementById('tokensValue').innerText = appState.maxTokens;
+                saveToStorage();
+            });
+
+            document.getElementById('systemPrompt').addEventListener('change', (e) => {
+                appState.systemPrompt = e.target.value;
+                saveToStorage();
+            });
+
+            // Model Select Dropdown toggles
+            document.getElementById('geminiModelSelect').addEventListener('change', function() {
+                const customInput = document.getElementById('geminiCustomModel');
+                if (this.value === 'custom') {
+                    customInput.classList.remove('hidden');
+                } else {
+                    customInput.classList.add('hidden');
+                }
+            });
+
+            document.getElementById('openRouterModelSelect').addEventListener('change', function() {
+                const customInput = document.getElementById('openRouterCustomModel');
+                if (this.value === 'custom') {
+                    customInput.classList.remove('hidden');
+                } else {
+                    customInput.classList.add('hidden');
+                }
+            });
+
+            // Buttons
+            document.getElementById('btnSend').addEventListener('click', sendMessage);
+            document.getElementById('userInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            document.getElementById('btnNewChat').addEventListener('click', startNewChat);
+            document.getElementById('btnSettings').addEventListener('click', openSettingsModal);
+            
+            // Drawer Controls
+            const historyDrawer = document.getElementById('historyDrawer');
+            document.getElementById('btnHistory').addEventListener('click', () => {
+                historyDrawer.classList.toggle('translate-x-full');
+            });
+            document.getElementById('btnCloseHistory').addEventListener('click', () => {
+                historyDrawer.classList.add('translate-x-full');
+            });
+            document.getElementById('btnClearAllHistory').addEventListener('click', () => {
+                if(confirm('Are you sure you want to clear all history?')) {
+                    appState.chats = [];
+                    appState.currentChatId = null;
+                    saveToStorage();
+                    renderHistoryList();
+                    renderChatMessages();
+                    showToast('History cleared');
+                }
+            });
+        }
+
+        // Provider Switch in Modal
+        function switchProviderTab(provider) {
+            appState.provider = provider;
+            const tabGemini = document.getElementById('tabGemini');
+            const tabOpenRouter = document.getElementById('tabOpenRouter');
+            const secGemini = document.getElementById('sectionGemini');
+            const secOpenRouter = document.getElementById('sectionOpenRouter');
+
+            if (provider === 'gemini') {
+                tabGemini.className = 'py-2 rounded-md font-medium text-xs flex items-center justify-center gap-2 transition bg-blue-600 text-white';
+                tabOpenRouter.className = 'py-2 rounded-md font-medium text-xs flex items-center justify-center gap-2 transition text-studio-muted hover:text-white';
+                secGemini.classList.remove('hidden');
+                secOpenRouter.classList.add('hidden');
+            } else {
+                tabOpenRouter.className = 'py-2 rounded-md font-medium text-xs flex items-center justify-center gap-2 transition bg-purple-600 text-white';
+                tabGemini.className = 'py-2 rounded-md font-medium text-xs flex items-center justify-center gap-2 transition text-studio-muted hover:text-white';
+                secOpenRouter.classList.remove('hidden');
+                secGemini.classList.add('hidden');
+            }
+        }
+
+        function openSettingsModal() {
+            switchProviderTab(appState.provider);
+            document.getElementById('settingsModal').classList.remove('hidden');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.add('hidden');
+        }
+
+        function saveSettings() {
+            appState.geminiKey = document.getElementById('geminiApiKey').value.trim();
+            const gSelect = document.getElementById('geminiModelSelect').value;
+            appState.geminiModel = gSelect === 'custom' ? (document.getElementById('geminiCustomModel').value.trim() || 'gemini-2.0-flash') : gSelect;
+
+            appState.openRouterKey = document.getElementById('openRouterApiKey').value.trim();
+            const orSelect = document.getElementById('openRouterModelSelect').value;
+            appState.openRouterModel = orSelect === 'custom' ? (document.getElementById('openRouterCustomModel').value.trim() || 'deepseek/deepseek-r1') : orSelect;
+
+            saveToStorage();
+            closeSettingsModal();
+            showToast('Settings saved successfully!');
+        }
+
+        function toggleKeyVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        // Starter Prompts
+        function applyStarterPrompt(text) {
+            const input = document.getElementById('userInput');
+            input.value = text;
+            input.focus();
+            sendMessage();
+        }
+
+        // Chat Management
+        function startNewChat() {
+            appState.currentChatId = null;
+            renderChatMessages();
+            document.getElementById('historyDrawer').classList.add('translate-x-full');
+            document.getElementById('userInput').focus();
+        }
+
+        function getCurrentChat() {
+            return appState.chats.find(c => c.id === appState.currentChatId);
+        }
+
+        function createNewChat(firstMessageText) {
+            const newChat = {
+                id: 'chat_' + Date.now(),
+                title: firstMessageText.slice(0, 32) + (firstMessageText.length > 32 ? '...' : ''),
+                timestamp: new Date().toISOString(),
+                messages: []
+            };
+            appState.chats.unshift(newChat);
+            appState.currentChatId = newChat.id;
+            saveToStorage();
+            renderHistoryList();
+            return newChat;
+        }
+
+        // SEND MESSAGE & API CALLS
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            // Key validation
+            const isGemini = appState.provider === 'gemini';
+            const apiKey = isGemini ? appState.geminiKey : appState.openRouterKey;
+
+            if (!apiKey) {
+                openSettingsModal();
+                showToast(`Please enter your ${isGemini ? 'Google Gemini' : 'OpenRouter'} API Key!`, 'error');
+                return;
+            }
+
+            let chat = getCurrentChat();
+            if (!chat) {
+                chat = createNewChat(text);
+            }
+
+            // Append User Message
+            chat.messages.push({ role: 'user', content: text });
+            input.value = '';
+            input.style.height = 'auto';
+            document.getElementById('charCount').innerText = '0 chars';
+            
+            renderChatMessages();
+            setLoading(true);
+
+            try {
+                let aiResponseText = '';
+                if (isGemini) {
+                    aiResponseText = await callGeminiAPI(chat.messages);
+                } else {
+                    aiResponseText = await callOpenRouterAPI(chat.messages);
+                }
+
+                chat.messages.push({ role: 'assistant', content: aiResponseText });
+                saveToStorage();
+                renderChatMessages();
+            } catch (err) {
+                console.error(err);
+                chat.messages.push({ 
+                    role: 'assistant', 
+                    content: `❌ **API Error:** ${err.message || 'Failed to generate response. Check API key and quota.'}` 
+                });
+                renderChatMessages();
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        // GOOGLE GEMINI API CALL
+        async function callGeminiAPI(messages) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${appState.geminiModel}:generateContent?key=${appState.geminiKey}`;
+
+            // Transform messages to Gemini format
+            const contents = messages.map(m => ({
+                role: m.role === 'assistant' ? 'model' : 'user',
+                parts: [{ text: m.content }]
+            }));
+
+            const payload = {
+                contents: contents,
+                generationConfig: {
+                    temperature: appState.temperature,
+                    maxOutputTokens: appState.maxTokens
+                }
+            };
+
+            if (appState.systemPrompt.trim()) {
+                payload.systemInstruction = {
+                    parts: [{ text: appState.systemPrompt }]
+                };
+            }
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error?.message || 'Error occurred while contacting Gemini API');
+            }
+
+            if (!data.candidates || !data.candidates[0]?.content?.parts?.[0]?.text) {
+                throw new Error('No content returned from Gemini');
+            }
+
+            return data.candidates[0].content.parts[0].text;
+        }
+
+        // OPENROUTER API CALL
+        async function callOpenRouterAPI(messages) {
+            const url = 'https://openrouter.ai/api/v1/chat/completions';
+
+            const formattedMessages = [];
+            if (appState.systemPrompt.trim()) {
+                formattedMessages.push({ role: 'system', content: appState.systemPrompt });
+            }
+
+            messages.forEach(m => {
+                formattedMessages.push({
+                    role: m.role,
+                    content: m.content
+                });
+            });
+
+            const payload = {
+                model: appState.openRouterModel,
+                messages: formattedMessages,
+                temperature: appState.temperature,
+                max_tokens: appState.maxTokens
+            };
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${appState.openRouterKey}`,
+                    'HTTP-Referer': window.location.origin || 'http://localhost',
+                    'X-Title': 'DevAI Studio'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error?.message || 'Error occurred while contacting OpenRouter API');
+            }
+
+            return data.choices[0].message.content;
+        }
+
+        // UI RENDERING
+        function renderChatMessages() {
+            const container = document.getElementById('chatContainer');
+            const chat = getCurrentChat();
+
+            if (!chat || chat.messages.length === 0) {
+                container.innerHTML = `
+                    <div id="welcomeBanner" class="h-full flex flex-col items-center justify-center text-center max-w-lg mx-auto p-6 space-y-4">
+                        <div class="w-16 h-16 rounded-2xl bg-studio-card border border-studio-border flex items-center justify-center text-blue-400 text-3xl shadow-xl shadow-blue-500/5">
+                            <i class="fa-solid fa-code-merge"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-white">DevAI Studio Playground</h2>
+                        <p class="text-xs sm:text-sm text-studio-muted leading-relaxed">
+                            Dual-Engine AI Developer Environment for Gemini & OpenRouter. Input your API Keys in settings to start coding, debugging, or generating content.
+                        </p>
+                        <div class="flex flex-wrap gap-2 justify-center pt-2">
+                            <button onclick="applyStarterPrompt('Write a clean JavaScript debounce function with TypeScript types')" class="text-xs bg-studio-card hover:bg-studio-hover border border-studio-border px-3 py-2 rounded-lg text-studio-text transition">
+                                💻 Write TypeScript debounce function
+                            </button>
+                            <button onclick="applyStarterPrompt('Explain the difference between WebSockets and SSE with architecture diagram in ASCII')" class="text-xs bg-studio-card hover:bg-studio-hover border border-studio-border px-3 py-2 rounded-lg text-studio-text transition">
+                                ⚡ WebSockets vs SSE
+                            </button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '';
+            
+            chat.messages.forEach((msg, idx) => {
+                const isUser = msg.role === 'user';
+                const msgWrapper = document.createElement('div');
+                msgWrapper.className = `flex gap-3.5 max-w-4xl mx-auto ${isUser ? 'justify-end' : 'justify-start'}`;
+
+                const avatar = document.createElement('div');
+                avatar.className = `w-8 h-8 rounded-lg shrink-0 flex items-center justify-center text-xs font-bold ${
+                    isUser ? 'bg-blue-600 text-white order-2' : 'bg-studio-card border border-studio-border text-blue-400 order-1'
+                }`;
+                avatar.innerHTML = isUser ? '<i class="fa-solid fa-user"></i>' : '<i class="fa-solid fa-robot"></i>';
+
+                const contentBox = document.createElement('div');
+                contentBox.className = `flex flex-col ${isUser ? 'items-end order-1' : 'items-start order-2'} max-w-[85%]`;
+
+                const bubble = document.createElement('div');
+                bubble.className = isUser 
+                    ? 'bg-blue-600 text-white rounded-2xl rounded-tr-none px-4 py-2.5 text-sm leading-relaxed shadow-sm'
+                    : 'bg-studio-card border border-studio-border rounded-2xl rounded-tl-none px-4 py-3 text-sm text-studio-text markdown-body shadow-sm w-full overflow-hidden';
+
+                if (isUser) {
+                    bubble.innerText = msg.content;
+                } else {
+                    bubble.innerHTML = marked.parse(msg.content);
+                    // Add Copy Buttons to Code Blocks
+                    bubble.querySelectorAll('pre').forEach((pre) => {
+                        const copyBtn = document.createElement('button');
+                        copyBtn.className = 'absolute top-2 right-2 px-2.5 py-1 text-[10px] font-mono bg-studio-border/80 hover:bg-studio-border text-studio-text rounded transition flex items-center gap-1';
+                        copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> Copy';
+                        copyBtn.onclick = () => {
+                            const code = pre.querySelector('code').innerText;
+                            navigator.clipboard.writeText(code);
+                            copyBtn.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> Copied!';
+                            setTimeout(() => copyBtn.innerHTML = '<i class="fa-regular fa-copy"></i> Copy', 2000);
+                        };
+                        pre.appendChild(copyBtn);
+                    });
+                }
+
+                contentBox.appendChild(bubble);
+                msgWrapper.appendChild(avatar);
+                msgWrapper.appendChild(contentBox);
+                container.appendChild(msgWrapper);
+            });
+
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function renderHistoryList() {
+            const list = document.getElementById('historyList');
+            list.innerHTML = '';
+
+            if (appState.chats.length === 0) {
+                list.innerHTML = `<div class="text-center text-studio-muted py-8 text-xs">No previous chats</div>`;
+                return;
+            }
+
+            appState.chats.forEach(chat => {
+                const item = document.createElement('div');
+                const isActive = chat.id === appState.currentChatId;
+                item.className = `group flex items-center justify-between p-2.5 rounded-lg border text-xs cursor-pointer transition ${
+                    isActive ? 'bg-studio-hover border-blue-500/50 text-white' : 'border-studio-border/50 text-studio-muted hover:bg-studio-hover hover:text-white'
+                }`;
+
+                item.innerHTML = `
+                    <div class="flex items-center gap-2.5 overflow-hidden">
+                        <i class="fa-regular fa-message text-xs shrink-0 text-blue-400"></i>
+                        <span class="truncate font-medium">${chat.title}</span>
+                    </div>
+                    <button class="opacity-0 group-hover:opacity-100 hover:text-rose-400 p-1 transition" title="Delete Chat">
+                        <i class="fa-solid fa-trash text-xs"></i>
+                    </button>
+                `;
+
+                // Select chat
+                item.addEventListener('click', (e) => {
+                    if (e.target.closest('button')) return;
+                    appState.currentChatId = chat.id;
+                    renderChatMessages();
+                    document.getElementById('historyDrawer').classList.add('translate-x-full');
+                    renderHistoryList();
+                });
+
+                // Delete chat
+                const deleteBtn = item.querySelector('button');
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    appState.chats = appState.chats.filter(c => c.id !== chat.id);
+                    if (appState.currentChatId === chat.id) {
+                        appState.currentChatId = appState.chats[0]?.id || null;
+                    }
+                    saveToStorage();
+                    renderHistoryList();
+                    renderChatMessages();
+                });
+
+                list.appendChild(item);
+            });
+        }
+
+        function setLoading(isLoading) {
+            const indicator = document.getElementById('typingIndicator');
+            const btnSend = document.getElementById('btnSend');
+            if (isLoading) {
+                indicator.classList.remove('hidden');
+                btnSend.disabled = true;
+            } else {
+                indicator.classList.add('hidden');
+                btnSend.disabled = false;
+            }
+        }
+
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMsg.innerText = msg;
+            if (type === 'error') {
+                toastIcon.className = 'fa-solid fa-circle-exclamation text-rose-400';
+            } else {
+                toastIcon.className = 'fa-solid fa-circle-check text-emerald-400';
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
